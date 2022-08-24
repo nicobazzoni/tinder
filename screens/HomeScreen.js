@@ -1,19 +1,28 @@
-import { StyleSheet, Text, View, Button } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Button, SafeAreaView } from 'react-native'
+import React, {useLayoutEffect} from 'react'
 import { useNavigation } from '@react-navigation/native'
 import useAuth from '../hooks/useAuth'
+
+
 const HomeScreen = () => {
     const {logout} = useAuth()
 
     const navigation = useNavigation()
+
+    useLayoutEffect(() => { 
+        navigation.setOptions({
+        headerShown: false,
+    })
+}, [])
+
   return (
-    <View>
+    <SafeAreaView>
       <Text>HomeScreen</Text>
       <Button title="Go to Chat screen" onPress={(navigation.navigate("Chat"))} 
       />
 
       <Button title="Logout" onPress={logout} />
-    </View>
+    </SafeAreaView>
   )
 }
 
