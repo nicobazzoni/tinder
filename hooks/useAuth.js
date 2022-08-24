@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import * as Google from 'expo-google-app-auth';
 import {
     GoogleAuthProvider,
     onAuthStateChanged,
     signInWithCredential,
     signOut,
-} from 'firebase/compat/auth'
+} from '@firebase/auth'
 import { auth } from '../firebase';
 
 const config = {
@@ -19,8 +19,36 @@ const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => { 
 
-    const signInWithGoogle = async () => { 
-        await Google.logInAsync(config).then(async (logInResult) => {
+    const [error, setError] =useState(null)
+    const [user, setUser] = useState(null)
+    const [loadingInitial, setLoadingInitial] = useState(true)
+    const [loading, setLoading] = useState(false)
+    
+    
+    useEffect(
+        () =>
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user)
+            } else {
+                setUser(null)
+            }
+            setLoadingInitial(false)
+            }),
+            
+        []
+    )
+       const logout = () => {
+        setLoading(true)
+        signOut(auth).catch((error) => setError(error))
+        .finally(() => setLoading(false))
+    }
+       
+
+     const signInWithGoogle = async () => { 
+
+        setLoading(true)
+         await Google.logInAsync(config).then(async (logInResult) => {
             if(logInResult.type === 'success') {
                 const { idToken, accessToken} = logInResult;
                 const credential = GoogleAuthProvider.credential(idToken, accessToken)
@@ -28,17 +56,24 @@ export const AuthProvider = ({ children }) => {
             }
 
            return Promise.reject()
-        })
+        }).catch(error => setError(error))
+        .finally(() => setLoading(false))
     }
+    //cache the user object in a memoized variable to avoid re-rendering the whole app when the user changes
+    const memoedValue = useMemo(() => ({
+        user,
+        loading,
+        error,
+        
+        signInWithGoogle,
+        logout,
+    }), [user, loading, error,])
 
   return (
     <AuthContext.Provider 
-    value={{
-        user: null,
-        signInWithGoogle,
-    }}
-    >
-      {children}
+    value={memoedValue}>
+    
+      {!loadingInitial && children}
     </AuthContext.Provider>
   )
 }
