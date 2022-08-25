@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import useAuth from '../hooks/useAuth'
 import tw from 'tailwind-react-native-classnames'
 import  Swiper from 'react-native-deck-swiper'
-import {antDesign, Entypo, Ionicons} from '@expo/vector-icons'
+import {AntDesign, Entypo, Ionicons} from '@expo/vector-icons'
 
 
 const DUMMY_DATA = [
@@ -55,7 +55,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
       
 
-       <TouchableOpacity>
+       <TouchableOpacity onPress={() => navigation.navigate("Modal")} >
         <Image  style={tw`h-14 w-14 rounded-full`} source={require("../tinder.jpeg")} />
        </TouchableOpacity> 
 
@@ -127,7 +127,22 @@ const HomeScreen = () => {
 
           )} />
         </View>
-     
+
+        <View style={tw`flex flex-row justify-evenly`}>
+          <TouchableOpacity  
+          onPress={() => swipeRef.current.swipeLeft()}  
+          style={tw`items-center justify-center rounded-full w-16 h-16 bg-red-200`}>
+            <Entypo name="cross" size={24} color='red' /> 
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+           onPress={() => swipeRef.current.swipeRight()}
+          
+          style={tw`items-center justify-center rounded-full w-16 h-16 bg-green-200`}>
+            <AntDesign name="heart" size={24} color='green' />
+          </TouchableOpacity>
+          
+          </View>     
 
          
     </SafeAreaView>
