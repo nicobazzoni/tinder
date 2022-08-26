@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View, Button, SafeAreaView, TouchableOpacity, Image } from 'react-native'
-import React, {useLayoutEffect, useRef} from 'react'
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react'
 import { useNavigation } from '@react-navigation/native'
 import useAuth from '../hooks/useAuth'
 import tw from 'tailwind-react-native-classnames'
 import  Swiper from 'react-native-deck-swiper'
 import {AntDesign, Entypo, Ionicons} from '@expo/vector-icons'
+import { collection, doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 
 
 const DUMMY_DATA = [
@@ -32,18 +34,46 @@ const DUMMY_DATA = [
 
 const HomeScreen = () => {
     const {user,logout} = useAuth()
-
+     const [profiles, setProfiles] = useState([])
     const navigation = useNavigation()
 
     const swipeRef = useRef(null)
 
     console.log(user)
+    
 
     useLayoutEffect(() => { 
-        navigation.setOptions({
-        headerShown: false,
+      const unsub = onSnapshot(doc(db, 'users', user.uid), (snapshot) => {
+        console.log(snapshot)
+      if (!snapshot.exists()) {
+        navigation.navigate("Modal")
+      }
     })
-}, [])
+    return unsub()
+     
+}, []
+);
+
+   useEffect(() => {
+    let unsub;
+   
+    const fetchCards = async () => {
+      unsub = onSnapshot(collection(db, 'users'), (snapshot) =>{
+        setProfiles(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        
+          })) 
+      )
+    })
+    }
+
+    fetchCards()
+    return unsub
+   }, [])
+
+   console.log(profiles)
 
   return (
     <SafeAreaView  style={tw`flex-1`}  >
@@ -101,7 +131,7 @@ const HomeScreen = () => {
         },
       }}
 
-          renderCard={(card) => (
+          renderCard={(card) => card ? (
         <View 
         key={card.id} style={tw`relative bg-white h-3/4 rounded-xl`} >
           <Text>{card.FirstName}</Text>
@@ -122,10 +152,26 @@ const HomeScreen = () => {
                 <Text style={tw`text-2xl font-bold`} >{card.age}</Text>
             
             </View>
-
+        </View>
+         //ternirary = otherwise show 'no profile cards'
+          ) : ( 
+            <View
+              style={tw`relative bg-white h-3/4 rounded-xl justify-center items-center`}
+              > 
+              <Text style={tw`font-bold pb-5`} > No More profiles </Text>
+              <Image 
+              style={tw`h-20 w-full`}
+              height={100}
+              width={100}
+              source={{ uri: "https://links.papareact.com/6gb"}} 
+              />
+              
+              
             </View>
 
-          )} />
+          )
+          } 
+          />
         </View>
 
         <View style={tw`flex flex-row justify-evenly`}>
