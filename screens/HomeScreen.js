@@ -60,7 +60,8 @@ const HomeScreen = () => {
     const fetchCards = async () => {
       unsub = onSnapshot(collection(db, 'users'), (snapshot) =>{
         setProfiles(
-          snapshot.docs.map((doc) => ({
+          snapshot.docs.filter((doc) => doc.id !== user.uid)
+          .map((doc) => ({
             id: doc.id,
             ...doc.data(),
         
@@ -79,7 +80,7 @@ const HomeScreen = () => {
     <SafeAreaView  style={tw`flex-1`}  >
        <View style={tw` flex-row items-center justify-between px-5`}>
         <TouchableOpacity   onPress={logout} >
-          <Image 
+          <Image  
           style={tw`h-10 w-10 rounded-full `}
           source={{uri: user.photoURL}} />
         </TouchableOpacity>
@@ -99,7 +100,7 @@ const HomeScreen = () => {
           <Swiper  
           ref={swipeRef}
           containerStyle={{ backgroundColor: "transparent"}}
-          cards={DUMMY_DATA} 
+          cards={profiles} 
           cardIndex={0}
           stackSize={5}
           animateCardOpacity={true}
