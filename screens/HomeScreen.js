@@ -5,10 +5,10 @@ import useAuth from '../hooks/useAuth'
 import tw from 'tailwind-react-native-classnames'
 import  Swiper from 'react-native-deck-swiper'
 import {AntDesign, Entypo, Ionicons} from '@expo/vector-icons'
-import { collection, doc, onSnapshot } from 'firebase/firestore'
+import { collection, doc, onSnapshot, query ,setDoc, where } from 'firebase/firestore'
 import { db } from '../firebase'
 
-
+ 
 const DUMMY_DATA = [
   {
     FirstName: "Nico",
@@ -40,7 +40,7 @@ const HomeScreen = () => {
     const swipeRef = useRef(null)
 
     console.log(user)
-    
+    const cardIndex = useRef(0)
 
     useLayoutEffect(() => { 
       const unsub = onSnapshot(doc(db, 'users', user.uid), (snapshot) => {
@@ -58,28 +58,49 @@ const HomeScreen = () => {
     let unsub;
    
     const fetchCards = async () => {
-      unsub = onSnapshot(collection(db, 'users'), (snapshot) =>{
+
+      const passes = getDocs(collection(db, 'users', user.uid, 'passes')).
+      then((snapshot) => snapshot.docs.map((doc) => doc.id)) 
+
+      const passedUserIds = passes.length > 0 ? passes : ['test'];
+      
+      unsub = onSnapshot(
+        //only shows poeple you havent passed on by excluding ones you have passed on
+        query(collection(db, 'users'), where('id', 'not-in', [...passedUserIds] ) ),
+        (snapshot) => {
         setProfiles(
-          snapshot.docs.filter((doc) => doc.id !== user.uid)
+          snapshot.docs
+          .filter((doc) => doc.id !== user.uid)
           .map((doc) => ({
             id: doc.id,
             ...doc.data(),
         
           })) 
+       )
+        }
       )
-    })
     }
+  
 
     fetchCards()
     return unsub
    }, [])
 
-   console.log(profiles)
+const swipeLeft = (cardIndex) => { 
+  if (!profiles[cardIndex]) return
+
+  const userSwiped = profiles[cardIndex]
+  console.log(`you swiped pass on ${userSwiped.displayName}`)
+
+  setDoc(doc(db, 'users', user.uid,'passes', userSwiped.id),  //users swiped data is loggede in firebase
+  userSwiped)
+}
+const swipeRight = async () => { }
 
   return (
     <SafeAreaView  style={tw`flex-1`}  >
        <View style={tw` flex-row items-center justify-between px-5`}>
-        <TouchableOpacity   onPress={logout} >
+        <TouchableOpacity onPress={logout} >
           <Image  
           style={tw`h-10 w-10 rounded-full `}
           source={{uri: user.photoURL}} />
@@ -87,7 +108,7 @@ const HomeScreen = () => {
       
 
        <TouchableOpacity onPress={() => navigation.navigate("Modal")} >
-        <Image  style={tw`h-14 w-14 rounded-full`} source={require("../tinder.jpeg")} />
+        <Image  style={tw`h-14 w-14 rounded-full pt-2`} source={require("../tinder.jpeg")} />
        </TouchableOpacity> 
 
        <TouchableOpacity style={tw``} onPress={() => navigation.navigate("Chat")} >
@@ -106,11 +127,13 @@ const HomeScreen = () => {
           animateCardOpacity={true}
           verticalSwipe={false}
           backgroundColor={'#4FD0E9'}
-          onSwipedLeft={() => {
+          onSwipedLeft={(cardIndex) => {
             console.log("swipe pass")
+            swipeLeft(cardIndex)
           }}
-          onSwipedRight={() => {
+          onSwipedRight={(cardIndex) => {
             console.log("swipe MATCH")
+            swipeRight(cardIndex)
           }}
           overlayLabels={{
             left: {
@@ -135,7 +158,7 @@ const HomeScreen = () => {
           renderCard={(card) => card ? (
         <View 
         key={card.id} style={tw`relative bg-white h-3/4 rounded-xl`} >
-          <Text>{card.FirstName}</Text>
+          <Text>{card.id}</Text>
           <Image  
           style={tw`absolute top-0 h-full w-full rounded-xl`}
           source={{ uri: card.photoURL}} 
@@ -145,7 +168,7 @@ const HomeScreen = () => {
           justify-between items-center h-20 px-6 py-2 rounded-b-xl shadow-xl`} >
             <View>
                   <Text style={tw`text-xl font-bold`} >
-                      {card.FirstName} {card.LastName}
+                      {card.displayName}
                   </Text>
                 
                 <Text>{card.job}</Text>
