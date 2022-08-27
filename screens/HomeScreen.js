@@ -5,9 +5,9 @@ import useAuth from '../hooks/useAuth'
 import tw from 'tailwind-react-native-classnames'
 import  Swiper from 'react-native-deck-swiper'
 import {AntDesign, Entypo, Ionicons} from '@expo/vector-icons'
-import { collection, doc, onSnapshot, query ,setDoc, where, getDocs} from 'firebase/firestore'
+import { collection, doc, onSnapshot, query ,setDoc, where, getDocs, serverTimestamp, getDoc} from 'firebase/firestore'
 import { db } from '../firebase'
-
+import generateId from '../lib/generateId'
  
 const DUMMY_DATA = [
   {
@@ -68,6 +68,8 @@ const HomeScreen = () => {
 
       const passedUserIds = passes.length > 0 ? passes : ['test'];
       const swipedUserIds = swipes.length > 0 ? swipes : ['test'];
+
+      
       unsub = onSnapshot(
         //only shows poeple you havent passed on by excluding ones
         query(collection(db, 'users'), where('id', 'not-in', [...passedUserIds, ...swipedUserIds] ) ),
@@ -101,10 +103,55 @@ const swipeLeft = (cardIndex) => {
 }
 const swipeRight = async (cardIndex) => { 
   if (!profiles[cardIndex]) return
+  
   const userSwiped = profiles[cardIndex]
-  console.log(`you swiped match on ${userSwiped.displayName}`)
-  setDoc(doc(db, 'users', user.uid,'swipes', userSwiped.id),  //users swiped data is loggede in firebase
-  userSwiped)
+  const loggedInProfile = await ( 
+    await getDoc(doc(db, 'users', user.uid))
+    ).data()
+   
+  
+  //check if user swiped on you
+  
+   getDoc(doc(db, 'users', userSwiped.id, 'swipes', user.uid)).then(
+    (documentSnapshot) => { 
+      if (documentSnapshot.exists()) {
+        // user has matched with you before you match with them
+        
+         console.log(`hooray you have a match with ${userSwiped.displayName} `)
+        
+         setDoc(
+          doc(db, 'users', user.uid, 'swipes', userSwiped.id), 
+         userSwiped
+         )
+            //create a match.
+            setDoc(
+              doc(db, 'matches', generateId(user.uid, userSwiped.id)), {
+              users: {
+                [user.uid]: loggedInProfile,
+                [userSwiped.id]: userSwiped,
+              },
+              usersMatched: [user.uid, userSwiped.id],
+              timestamp: serverTimestamp(),
+            })
+
+            navigation.navigate('Match', {
+              loggedInProfile, 
+              userSwiped
+            } )
+      } else {
+
+      // user has swiped as first interacation between the two or didnt get swiped
+      console.log(`you swiped match on ${userSwiped.displayName}`)
+       setDoc(
+        doc(db, 'users', user.uid,'swipes', userSwiped.id),  //users swiped data is loggede in firebase
+      userSwiped
+      )
+    }
+  }
+  )
+
+
+  
 }
 
   return (
