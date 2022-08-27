@@ -5,7 +5,7 @@ import useAuth from '../hooks/useAuth'
 import tw from 'tailwind-react-native-classnames'
 import  Swiper from 'react-native-deck-swiper'
 import {AntDesign, Entypo, Ionicons} from '@expo/vector-icons'
-import { collection, doc, onSnapshot, query ,setDoc, where } from 'firebase/firestore'
+import { collection, doc, onSnapshot, query ,setDoc, where, getDocs} from 'firebase/firestore'
 import { db } from '../firebase'
 
  
@@ -59,14 +59,18 @@ const HomeScreen = () => {
    
     const fetchCards = async () => {
 
-      const passes = getDocs(collection(db, 'users', user.uid, 'passes')).
+      const passes = await getDocs(collection(db, 'users', user.uid, 'passes')).
       then((snapshot) => snapshot.docs.map((doc) => doc.id)) 
 
+      const swipes = await getDocs(collection(db, 'users', user.uid, 'swipes')).then(
+        (snapshot) => snapshot.docs.map((doc) => doc.id)
+      )
+
       const passedUserIds = passes.length > 0 ? passes : ['test'];
-      
+      const swipedUserIds = swipes.length > 0 ? swipes : ['test'];
       unsub = onSnapshot(
-        //only shows poeple you havent passed on by excluding ones you have passed on
-        query(collection(db, 'users'), where('id', 'not-in', [...passedUserIds] ) ),
+        //only shows poeple you havent passed on by excluding ones
+        query(collection(db, 'users'), where('id', 'not-in', [...passedUserIds, ...swipedUserIds] ) ),
         (snapshot) => {
         setProfiles(
           snapshot.docs
@@ -84,7 +88,7 @@ const HomeScreen = () => {
 
     fetchCards()
     return unsub
-   }, [])
+   }, [db])
 
 const swipeLeft = (cardIndex) => { 
   if (!profiles[cardIndex]) return
@@ -95,7 +99,13 @@ const swipeLeft = (cardIndex) => {
   setDoc(doc(db, 'users', user.uid,'passes', userSwiped.id),  //users swiped data is loggede in firebase
   userSwiped)
 }
-const swipeRight = async () => { }
+const swipeRight = async (cardIndex) => { 
+  if (!profiles[cardIndex]) return
+  const userSwiped = profiles[cardIndex]
+  console.log(`you swiped match on ${userSwiped.displayName}`)
+  setDoc(doc(db, 'users', user.uid,'swipes', userSwiped.id),  //users swiped data is loggede in firebase
+  userSwiped)
+}
 
   return (
     <SafeAreaView  style={tw`flex-1`}  >
