@@ -9,25 +9,7 @@ import { collection, doc, onSnapshot, query ,setDoc, where, getDocs, serverTimes
 import { db } from '../firebase'
 import generateId from '../lib/generateId'
  
-const DUMMY_DATA = [
-  {
-    FirstName: "Nico",
-    LastName: "Sanchez",
-    job: "the dude",
-    photoURL: "https://i.scdn.co/image/ab6761610000e5eb2456028aa8bc6583accf3790",
-    age: 40,
-    id: 123,
-  },
-  {
-    FirstName: "Tina",
-    LastName: "Turner",
-    job: "singer",
-    photoURL: "https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTgwNTMwNjYzNjg0ODQyODU2/tina-turner.jpg",
-    age: 40,
-    id: 456,
-  },
 
-];
 
 
 

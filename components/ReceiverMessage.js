@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, Button, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text,  Image } from 'react-native';
 import tw from 'tailwind-react-native-classnames';
 
 
-const ReceiverMessage = ({message}) => {
+const ReceiverMessage = ({ message }) => {
     return (
         <View 
-        style={[tw`bg-blue-500 rounded-lg rounded-tl-none px-5 py-3 mx-3 ml-14 ` , alignSelf='flex-start', ]}
+        style={tw`bg-blue-500 rounded-lg rounded-tl-none px-5 py-3 mx-3 ml-14 `}
         >
         <Text style={tw`text white`}>{message.message}</Text>
         
