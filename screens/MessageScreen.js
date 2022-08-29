@@ -1,9 +1,9 @@
 import { View, Text, 
   SafeAreaView, TextInput, Button, 
   KeyboardAvoidingView, TouchableWithoutFeedback, 
-  FlatList, Keyboard} from 'react-native'
+  FlatList, Keyboard, Animated} from 'react-native'
 
-  import React, {useEffect, useState} from 'react'
+  import React, {useEffect, useRef, useState} from 'react'
 import  Header  from '../components/Header'
 import useAuth from '../hooks/useAuth'
 import getMatchedUserInfo from '../lib/getMatchedUserInfo'
@@ -18,6 +18,10 @@ import { db } from '../firebase'
 
 
 const MessageScreen = () => {
+
+  
+    
+  
     const { params } = useRoute();
     const { user} = useAuth();
     const [input, setInput] = useState('');
@@ -61,11 +65,14 @@ const MessageScreen = () => {
   
 
 return (
-    <SafeAreaView style={tw`flex-1`} > 
+  
+    <SafeAreaView style={tw`flex-1 `} > 
         <Header 
+       
         title={getMatchedUserInfo(matchDetails?.users, user.uid).displayName} 
         />
-
+         
+       
         <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={tw`flex-1`}
@@ -74,7 +81,10 @@ return (
         
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}> 
-          <FlatList
+          
+          <FlatList 
+          
+          
           data={messages}
           inverted={-1}
           style={tw`pl-4`}

@@ -8,7 +8,7 @@ const SenderMessage = ({message}) => {
         style={tw.style(`bg-blue-200 rounded-lg rounded-tr-none px-5 py-3 mx-3 my-2  `, 
         {alignSelf: 'flex-start', marginLeft: 'auto'}) }
         >
-        <Text style={tw`text white`}>{message.message}</Text>
+        <Text style={tw`text-black`}>{message.message}</Text>
         </View>
     );
 }
