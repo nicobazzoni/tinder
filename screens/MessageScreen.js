@@ -1,13 +1,25 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, SafeAreaView } from 'react-native'
+import React, {useState} from 'react'
 import  Header  from '../components/Header'
+import useAuth from '../hooks/useAuth'
+import getMatchedUserInfo from '../lib/getMatchedUserInfo'
+import { useRoute } from '@react-navigation/native'
 
-const MessageScreen = () => {
+const MessageScreen = ({matchDetails}) => {
+    const { params } = useRoute();
+    const { user} = useAuth();
+    const [input, setInput] = useState('');
+    
+
+
+   
+ 
   return (
-    <View> 
-        <Header />
+    <SafeAreaView> 
+        <Header 
+        title={getMatchedUserInfo(matchDetails?.users, user.uid).displayName} />
       <Text>MessageScreen</Text>
-    </View>
+    </SafeAreaView>
   )
 }
 

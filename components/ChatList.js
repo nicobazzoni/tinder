@@ -4,7 +4,7 @@ import tw from 'tailwind-react-native-classnames'
 import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import useAuth from '../hooks/useAuth'
 import { db } from '../firebase'
-import ChatRow from './ChatRow'
+import ChatRow from '../components/ChatRow'
 
 
 const ChatList = () => {
@@ -31,16 +31,19 @@ const ChatList = () => {
      [user]
      );
 
+     console.log(matches)
+
      
   return matches.length > 0 ? (
         <FlatList 
+        style={tw`h-full`}
         data={matches}
         keyExtractor={(item) => item.id} 
         renderItem={({ item }) => <ChatRow matchDetails={item} /> }
         />
     ) : (
         <View style={tw`p-5`}>
-            <Text style={tw`text-xl text-gray-500  text-lg p-2 font-bold`}>
+            <Text style={tw`text-xl text-gray-500 text-center  text-lg p-2 font-bold`}>
                 No matches at the moment</Text>
         </View>
     )

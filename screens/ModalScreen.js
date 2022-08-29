@@ -5,6 +5,8 @@ import  useAuth from '../hooks/useAuth'
 import { useNavigation } from '@react-navigation/native';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+
+
 const ModalScreen = () => {
     const navigation = useNavigation()
 

@@ -6,11 +6,11 @@ import getMatchedUserInfo from '../lib/getMatchedUserInfo'
 import tw from 'tailwind-react-native-classnames'
 
 
-const ChatRow = ({ matchDetails }) => {
+const ChatRow = ({ matchDetails}) => {
 
-    const navigation = useNavigation()
-    const {user} = useAuth()
-    const [matchedUserInfo, setMatchedUserInfo]= useState(null)
+    const navigation = useNavigation();
+    const { user } = useAuth();
+    const [matchedUserInfo, setMatchedUserInfo] = useState(null)
 
     useEffect(() => {
         setMatchedUserInfo(getMatchedUserInfo( matchDetails.users, user.uid))
@@ -21,6 +21,7 @@ const ChatRow = ({ matchDetails }) => {
     <TouchableOpacity 
     style={tw`flex-row items-center bg-indigo-200  mx-3 px-5 py-3 shadow-xl `} 
     onPress={() => navigation.navigate('Message', {
+        matchDetails,
       })}
     >
       
