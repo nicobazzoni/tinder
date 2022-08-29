@@ -10,15 +10,15 @@ const MatchedScreen = () => {
     const {loggedInProfile, userSwiped,} = params
     
     return (
-        <View style={tw`h-full bg-red-500 pt-20 opacity-0.5`  }>
-            <View style={tw`flex-1 flex justify-evenly mt-5`}> 
-                <Image  style={tw`h-14 w-14 rounded-full pt-2`} 
+        <View style={tw`h-full bg-red-500 pt-20 `  }>
+            <View style={tw`px-10 pt-20 justify-center `}> 
+                <Image  style={tw`h-20 w-20  pt-20`} 
                 
                 source={{uri: 'https://links.papareact/mg9'}} />
             
             </View>
 
-            <Text>
+            <Text style={tw`font-bold text-white mt-5`}>
                 you and {userSwiped.displayName} have matched!
             </Text>
 
