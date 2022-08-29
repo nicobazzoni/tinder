@@ -6,12 +6,13 @@ import tw from 'tailwind-react-native-classnames';
 const ReceiverMessage = ({ message }) => {
     return (
         <View 
-        style={tw`bg-blue-500 rounded-lg rounded-tl-none px-5 py-3 mx-3 ml-14 `}
+        style={tw.style(`bg-blue-500 rounded-lg rounded-tl-none px-5 py-3 mx-3 ml-14 `, 
+        {alignSelf: 'flex-start'}) }
         >
         <Text style={tw`text white`}>{message.message}</Text>
         
         <Image 
-        style={tw`rounded-full h-16 w-16 mr-4`}
+        style={tw`h-12 w-12 rounded-full absolute top-0 -left-14`}
         source={{uri: message.photoURL}}
         
         />
